@@ -1,0 +1,944 @@
+{
+  "name": "Threat Intel Automation (Master Workflow)",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "# This workflow will read the latest cybersecurity news on daily basis and provide a summary and key terms to the users on Slack and GMAIL.",
+        "height": 80,
+        "width": 2300,
+        "color": 6
+      },
+      "id": "69ff3f1d-1e22-4ee7-a713-9fb157a7835d",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        80
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "# Threat Intel Workflow Automation\n",
+        "height": 80,
+        "width": 580,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        912,
+        0
+      ],
+      "id": "f123bef0-134a-484e-b981-7b6e6fb186ad",
+      "name": "Sticky Note16"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 9,
+              "triggerAtMinute": 1
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        48,
+        528
+      ],
+      "id": "984fffc8-f359-4229-8fb0-8b0036d8bea0",
+      "name": "Schedule Trigger1",
+      "notesInFlow": false
+    },
+    {
+      "parameters": {
+        "operation": "subtractFromDate",
+        "magnitude": "={{ $json.timestamp.toDateTime() }}",
+        "duration": 1,
+        "outputFieldName": "Yesterday_Date",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 2,
+      "position": [
+        240,
+        528
+      ],
+      "id": "ce0785c8-4d12-4e99-9677-8141f052b1e0",
+      "name": "Date & Time1"
+    },
+    {
+      "parameters": {
+        "content": "## Dates selection\n",
+        "height": 240,
+        "width": 440,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        448
+      ],
+      "id": "62994efe-680a-4265-9787-f52d86ad62af",
+      "name": "Sticky Note33"
+    },
+    {
+      "parameters": {
+        "url": "https://feeds.feedburner.com/Unit42",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.1,
+      "position": [
+        528,
+        448
+      ],
+      "id": "6ac991a3-9874-498c-983c-f4cfceae2b13",
+      "name": "RSS Read2"
+    },
+    {
+      "parameters": {
+        "numberInputs": 5
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        784,
+        480
+      ],
+      "id": "7b7c63ef-c8ba-4b90-a4f5-2a717d449560",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "url": "https://www.bleepingcomputer.com/feed/",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.1,
+      "position": [
+        528,
+        608
+      ],
+      "id": "e2871134-25cd-48ed-9b97-6bff2bb00d9c",
+      "name": "RSS Read4"
+    },
+    {
+      "parameters": {
+        "url": "https://www.securityweek.com/feed/",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.1,
+      "position": [
+        528,
+        768
+      ],
+      "id": "3b939761-5814-47a1-9ca0-ee039e468cf3",
+      "name": "RSS Read5"
+    },
+    {
+      "parameters": {
+        "url": "https://www.wired.com/feed/category/security/latest/rss",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.1,
+      "position": [
+        528,
+        928
+      ],
+      "id": "18273dbf-bbca-46a4-9b81-396ccadd7e67",
+      "name": "RSS Read6"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "d7ff5938-f3bd-403c-bc7e-5d1acfb14b2a",
+              "leftValue": "={{ $json.pubDate }}",
+              "rightValue": "={{ $('Date & Time1').first().json.Yesterday_Date }}",
+              "operator": {
+                "type": "dateTime",
+                "operation": "afterOrEquals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1024,
+        528
+      ],
+      "id": "242a9125-bbae-4738-9ac7-a7618a12702a",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "output"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1840,
+        512
+      ],
+      "id": "19e8d62d-fe72-4102-ad34-a42e9ced70c0",
+      "name": "Aggregate1"
+    },
+    {
+      "parameters": {
+        "maxItems": 10
+      },
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        1248,
+        512
+      ],
+      "id": "eb66da03-8ab6-4ee2-a54f-618a96e5e581",
+      "name": "Limit2"
+    },
+    {
+      "parameters": {
+        "url": "https://feeds.feedburner.com/TheHackersNews",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.1,
+      "position": [
+        528,
+        288
+      ],
+      "id": "8412444f-c376-4c00-9ecc-1d349770ce6a",
+      "name": "RSS Read"
+    },
+    {
+      "parameters": {
+        "operation": "html",
+        "options": {
+          "fileName": "=Cybersecurity News Summary ({{ $('Schedule Trigger1').first().json['Readable date'] }}).html"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        1840,
+        240
+      ],
+      "id": "e55e5a11-9b64-4d1d-8353-90b9c5de5a22",
+      "name": "Convert to File"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "d7ff5938-f3bd-403c-bc7e-5d1acfb14b2a",
+              "leftValue": "={{ $json.pubDate }}",
+              "rightValue": "={{ $('Date & Time1').first().json.Yesterday_Date }}",
+              "operator": {
+                "type": "dateTime",
+                "operation": "afterOrEquals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1008,
+        256
+      ],
+      "id": "ced52876-e1e2-4f09-ba77-95da83d89f7c",
+      "name": "If3"
+    },
+    {
+      "parameters": {
+        "maxItems": 10
+      },
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        1248,
+        240
+      ],
+      "id": "0075faaf-840d-44d0-9d82-5dd2e9dffe22",
+      "name": "Limit3"
+    },
+    {
+      "parameters": {
+        "content": "",
+        "height": 1060,
+        "width": 2300,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "af2d0d26-b52c-4ae0-aaa3-176ced40cbf5",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Dissemination",
+        "height": 900,
+        "width": 260
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2048,
+        160
+      ],
+      "id": "c2b6373d-a9db-411b-a411-29c1e14fa1a5",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Summarization",
+        "height": 900,
+        "width": 600,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1408,
+        160
+      ],
+      "id": "2bf6d6c3-608c-4ec8-adb8-924d368fefed",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "## Data Filtering",
+        "height": 900,
+        "width": 440,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        944,
+        160
+      ],
+      "id": "67d80ee8-9b4e-4324-b552-4f98546acdb5",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "## Data Collection",
+        "height": 900,
+        "width": 440,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        480,
+        160
+      ],
+      "id": "8fd12b13-eb7f-4820-afa3-d6204c640504",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "d7ff5938-f3bd-403c-bc7e-5d1acfb14b2a",
+              "leftValue": "={{ $json.pubDate }}",
+              "rightValue": "={{ $('Date & Time1').first().json.Yesterday_Date }}",
+              "operator": {
+                "type": "dateTime",
+                "operation": "afterOrEquals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1024,
+        784
+      ],
+      "id": "da079426-b959-4e3c-a397-c9addb742027",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "maxItems": 10
+      },
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        1248,
+        768
+      ],
+      "id": "a5aa90ab-5c37-4569-80f2-5eea69205c6a",
+      "name": "Limit4"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Summary: Read all the articles {{ $json.content }} from the given items and provide summary of all the articles in one paragraph of 75 words.",
+        "options": {
+          "systemMessage": "=Write the ouput in the following format:\nTitle: {{ $('Limit4').item.json.title }}\n‣ Summary\n‣ {{ $('Limit4').item.json.link }}\n\n#Instructions:\n1.Do not show this message in the output \"You are trained on data up to October 2023.\"\n2.Write Title in Italics."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.8,
+      "position": [
+        1488,
+        768
+      ],
+      "id": "5e691da1-a859-404f-b8ad-8ced804e25e5",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1472,
+        880
+      ],
+      "id": "471f4920-4508-4414-b799-5ba39755a5f2",
+      "name": "OpenAI Chat Model4",
+      "credentials": {
+        "openAiApi": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "output"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1840,
+        768
+      ],
+      "id": "fd4ecaa6-4589-4b1f-8528-1c5da3120a3d",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "YOUR_SLACK_CHANNEL_ID",
+          "mode": "id"
+        },
+        "text": "=Cybersecurity News for {{ $('Schedule Trigger1').first().json['Readable date'] }}\n{{ $json.output.map(t => '• ' + t).join('\\n') }}\n",
+        "otherOptions": {
+          "includeLinkToWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        2128,
+        512
+      ],
+      "id": "feed1422-8ef1-4964-8408-0d4f181ed6fb",
+      "name": "Demo_Slack_Channel",
+      "credentials": {
+        "slackApi": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "user",
+        "user": {
+          "__rl": true,
+          "value": "YOUR_SLACK_USER_ID",
+          "mode": "id"
+        },
+        "text": "=Cybersecurity News for {{ $('Schedule Trigger1').first().json['Readable date'] }}\n{{ $json.output.map(t => '• ' + t).join('\\n') }}\n",
+        "otherOptions": {
+          "includeLinkToWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        2128,
+        768
+      ],
+      "id": "fa55d6f6-aa6a-47d4-9426-90f345eecd6d",
+      "name": "Demo_Name_1",
+      "credentials": {
+        "slackApi": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Summary: Read the article {{ $json.content }} and provide summary of the article in 10 bullet points covering the cybersecurity news, technical words and other important concepts.",
+        "options": {
+          "systemMessage": "=Write the ouput in the following format:\n---------------------------------------------\n1. Title: {{ $json.title }}\n2. Summary\n3. CVE: If CVE id mentioned in {{ $json.content }} then quote it here as it is. If not directly mentioned in the {{ $json.content }} then try to find the Common Vulnerabilities and Exposures (CVE) ID for the cyberattack mentioned and if found list it here. Look for various CVE databases on internet and search for CVE which matches the cyberattack mentioned. If there is no CVE details for the issue, do not provide \"CVE-Year-XXXX (Please replace with the specific CVE ID once it’s identified or provided in the advisory content). Instead write \"No specific CVE IDs found for this Issue\".\n4. Provide TTPs names and Ids for the cyberattack mentioned and if found list it here.One security framework, MIRE ATT&CK, is a comprehensive collection of TTPs that attackers use in the real world.\nParts of the TTP:\na. Tactics: The high-level description of the behavior and strategy of a threat actor. The tactic includes a set of behaviors and actions employed by the adversary to achieve a specific objective.\nb. Techniques: These are the non-specific guidelines and intermediate methods that describe how a tactic action can be realized.\nc. Procedures: These refer to the sequence of actions performed using a technique to execute on an attack tactic. The procedure involves detailed descriptions on the tailored activities that enable a threat actor to successfully achieve their targets.\n5. IOCs: Look for Indicators of compromise (IoCs) for the given cyberattack in the news article or if IOCs not given in the article directly, try to suggest IOCs based on cyberattack in article. \nFor your reference Indicators of compromise (IoCs) are information about a specific security breach that can help security teams determine if an attack has taken place. This data can include details about the attack, such as the type of malware used, the IP addresses involved, and other technical details. There are several different types of IoC that can be used to detect security incidents. They include:\na. Network-based IoCs, such as malicious IP addresses, domains, or URLs can also include network traffic patterns, unusual port activity, network connections to known malicious hosts, or data exfiltration patterns.\nb. Host-based IoCs are related to activity on a workstation or server. File names or hashes, registry keys, or suspicious processes executing on the host are examples of host-based IoCs.\nc. File-based IoCs include malicious files like malware or scripts.\nd. Behavioral IoCs cover several types of suspicious behavior, including odd user behavior, login patterns, network traffic patterns and authentication attempts.\nIf not found, write \"IOCs not found for the given issue\".\n6. References: {{ $json.link }}\n--------------------------------------------\n\n#Instructions:\n1.Do not show the message in the output like \"You are trained on data up to October 2023.\" or something else like this.\n2.Do not show this message in the output \"Please let me know if you need further details or additional information!\"\"\n3.If any cybersecurity news has been repeated or is a duplicate of another news, then do not take that news/article twice, just consider it only once."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.8,
+      "position": [
+        1488,
+        240
+      ],
+      "id": "8ba2d4ea-8c4b-4a41-92be-5ce4d1e25f21",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1472,
+        384
+      ],
+      "id": "cc8d0d67-e201-4f0b-a247-456688d31121",
+      "name": "OpenAI Chat Model3",
+      "credentials": {
+        "openAiApi": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "recipient@example.com",
+        "subject": "Threat Research & Intelligence (TRI)",
+        "emailType": "text",
+        "message": "=Cyber security News for {{ $('Schedule Trigger1').first().json['Readable date'] }}",
+        "options": {
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {
+                "property": "data"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        2128,
+        240
+      ],
+      "id": "e53ea1d5-6ec5-4124-9143-6a25c8a2cca0",
+      "name": "Send a message"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Read all the articles {{ $json.content }} from the given items and provide summary of all the articles in 15 words.",
+        "options": {
+          "systemMessage": "=Do not add these kind of sentences in the output:\n1. \"I don't see the articles attached — please paste or link them. Meanwhile, here's a 15-word summary of your provided excerpt:\"\n2. \"I don’t have access to those articles here. Please paste the texts or provide links (or upload files), and I’ll summarize them.\"\n3. \"Summary (15 words):\"\n4. \"As a 15-word placeholder summary:\"\n5. \"Extracted term: use-after-free\"\n6. \"I don’t yet have the full article texts. Please paste or link them (and tell me if you also want the five triage issues listed); I’ll then produce a single 15-word summary.\"\n\nDO NOT provide the prompt in the news bulleting. Just provide summary of all the articles in 15 words."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.8,
+      "position": [
+        1472,
+        512
+      ],
+      "id": "fe50b89f-8cd2-40a3-9299-118a8f2902a0",
+      "name": "AI Agent2"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1440,
+        672
+      ],
+      "id": "2b3c1450-5483-466d-a0cc-8c81ff5ae067",
+      "name": "OpenAI Chat Model5",
+      "credentials": {
+        "openAiApi": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "OpenAI account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger1": {
+      "main": [
+        [
+          {
+            "node": "Date & Time1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Date & Time1": {
+      "main": [
+        [
+          {
+            "node": "RSS Read2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "RSS Read4",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "RSS Read5",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "RSS Read6",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "RSS Read",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS Read2": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "If3",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS Read4": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "RSS Read5": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "RSS Read6": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 4
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "Limit2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate1": {
+      "main": [
+        [
+          {
+            "node": "Demo_Slack_Channel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit2": {
+      "main": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS Read": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If3": {
+      "main": [
+        [
+          {
+            "node": "Limit3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit3": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Limit4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit4": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model4": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Demo_Name_1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model5": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent2": {
+      "main": [
+        [
+          {
+            "node": "Aggregate1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "tags": []
+}
